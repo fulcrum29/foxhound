@@ -1,9 +1,13 @@
 package main
 
-import "log/slog"
+import (
+	"log/slog"
+	"text/template"
+)
 
 type api struct {
-	logger *slog.Logger
+	logger        *slog.Logger
+	templateCache *template.Template
 }
 
 type UHC struct {

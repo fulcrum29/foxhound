@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-	"text/template"
 )
 
 func (s *api) handlerCreateService() http.Handler {
@@ -16,15 +15,14 @@ func (s *api) handlerCreateService() http.Handler {
 		err := json.NewDecoder(r.Body).Decode(&v)
 		if err != nil {
 			s.logger.Error(err.Error())
-		}
-		s.logger.Info("UHC struct values", "name", v.Name, "replicaCount", v.ReplicaCount, "CPU limits", v.Resources.Limits.CPU)
-		tmpl, err := template.ParseFiles("uhc.tmpl")
-		if err != nil {
-			s.logger.Error(err.Error())
+			s.clientError(w, err, 400)
 		}
 
+		s.logger.Info("UHC struct values", "name", v.Name, "replicaCount", v.ReplicaCount, "CPU limits", v.Resources.Limits.CPU)
+
 		buf := bytes.Buffer{}
-		err = tmpl.ExecuteTemplate(&buf, "uhc", v)
+
+		err = s.templateCache.ExecuteTemplate(&buf, "uhc", v)
 		if err != nil {
 			s.logger.Error(err.Error())
 		}
